@@ -23,14 +23,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.example.movieticket.ui.viewmodel.MovieViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
     movie: Movie,
     onBuyTicketClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    movieViewModel: MovieViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
+    val nowShowingMovies = movieViewModel.movies.collectAsState().value
+    val isNowShowing = nowShowingMovies.any { it.id == movie.id }
     val scrollState = rememberScrollState()
 
     Scaffold(
@@ -59,15 +64,16 @@ fun DetailScreen(
             ) {
                 Button(
                     onClick = onBuyTicketClick,
+                    enabled = isNowShowing,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF00B4D8)
+                        containerColor = if (isNowShowing) Color(0xFF00B4D8) else Color.Gray
                     ),
                     shape = RoundedCornerShape(28.dp)
                 ) {
-                    Text("Đặt vé ngay")
+                    Text(if (isNowShowing) "Đặt vé ngay" else "Chưa mở bán")
                 }
             }
         },

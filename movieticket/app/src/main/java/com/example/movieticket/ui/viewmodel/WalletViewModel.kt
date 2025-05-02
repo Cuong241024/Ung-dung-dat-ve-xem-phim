@@ -147,7 +147,13 @@ class WalletViewModel @Inject constructor(
                     .await()
 
                 val balance = walletDoc.getLong("balance") ?: 0
-                val cardHolderName = walletDoc.getString("cardHolderName") ?: ""
+
+                // Lấy thông tin user từ Firestore để lấy tên đồng bộ
+                val userDoc = firestore.collection("users")
+                    .document(userId)
+                    .get()
+                    .await()
+                val cardHolderName = userDoc.getString("displayName") ?: ""
 
                 // Lấy lịch sử giao dịch
                 val transactions = firestore.collection("wallets")

@@ -52,6 +52,7 @@ fun ProfileScreen(
     var newDisplayName by remember { mutableStateOf(user?.displayName ?: "") }
     var newPassword by remember { mutableStateOf("") }
     var profileImage by remember { mutableStateOf<String?>(null) }
+    var firestoreDisplayName by remember { mutableStateOf<String?>(null) }
     
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -61,6 +62,7 @@ fun ProfileScreen(
         if (user != null) {
             viewModel.getUserData { userData ->
                 profileImage = userData["profileImage"] as? String
+                firestoreDisplayName = userData["displayName"] as? String
                 Log.d("ProfileScreen", "Received profile image data: ${profileImage?.take(100)}...")
             }
         }
@@ -177,7 +179,7 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Text(
-                        text = user.displayName ?: "User",
+                        text = firestoreDisplayName ?: user.displayName ?: "User",
                         style = MaterialTheme.typography.titleLarge,
                         color = Color.White
                     )

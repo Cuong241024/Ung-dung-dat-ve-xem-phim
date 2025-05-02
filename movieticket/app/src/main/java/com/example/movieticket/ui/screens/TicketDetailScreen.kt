@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.movieticket.R
 import com.example.movieticket.data.model.Ticket
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,9 +65,9 @@ fun TicketDetailScreen(
                         .clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.Crop
                 )
-                
+
                 Spacer(modifier = Modifier.width(16.dp))
-                
+
                 // Movie Details
                 Column {
                     Text(
@@ -73,27 +75,28 @@ fun TicketDetailScreen(
                         style = MaterialTheme.typography.titleLarge,
                         color = Color.White
                     )
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
+                    // SỬA ĐOẠN NÀY:
+                    val isActive = isTicketActive(ticket.date, ticket.time)
                     Text(
-                        text = if (ticket.status == "active") "Còn hiệu lực" else "Đã sử dụng",
-                        color = if (ticket.status == "active") Color(0xFF4CAF50) else Color.Red,
+                        text = if (isActive) "Còn hiệu lực" else "Hết hiệu lực",
+                        color = if (isActive) Color(0xFF4CAF50) else Color.Gray,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             // Ticket Info
-            InfoRow(label = "Rạp", value = "Galaxy Linh Trung")
             InfoRow(label = "Ngày giờ", value = "${ticket.date}, ${ticket.time}")
             InfoRow(label = "Số ghế", value = ticket.seats.joinToString(", "))
             InfoRow(label = "Giá vé", value = "${formatPrice(ticket.totalAmount)} VND")
-            
+
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             // QR Code
             Box(
                 modifier = Modifier
@@ -108,15 +111,15 @@ fun TicketDetailScreen(
                     contentScale = ContentScale.Fit
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = "ID Order",
                 color = Color.Gray,
                 style = MaterialTheme.typography.bodyMedium
             )
-            
+
             Text(
                 text = ticket.id,
                 color = Color.White,
@@ -125,6 +128,26 @@ fun TicketDetailScreen(
             )
         }
     }
+}
+
+// Hàm kiểm tra vé còn hiệu lực
+private fun isTicketActive(date: String?, time: String?): Boolean {
+    if (date.isNullOrBlank() || time.isNullOrBlank()) return false
+
+    val dateFormats = listOf(
+        SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()),
+        SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+    )
+
+    for (sdf in dateFormats) {
+        try {
+            val ticketDateTime = sdf.parse("$date $time")
+            if (ticketDateTime != null) {
+                return ticketDateTime.after(Date())
+            }
+        } catch (_: Exception) { }
+    }
+    return false
 }
 
 @Composable

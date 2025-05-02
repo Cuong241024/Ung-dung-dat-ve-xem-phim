@@ -10,7 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.movieticket.ui.navigation.AuthNavigation
-import com.example.movieticket.ui.screen.MainScreen
+import com.example.movieticket.ui.screens.MainScreen
 import com.example.movieticket.ui.screens.SplashScreen
 import com.example.movieticket.ui.theme.MovieTicketTheme
 import com.example.movieticket.ui.viewmodel.AuthViewModel
@@ -39,15 +39,15 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     } else {
-                        if (isLoggedIn) {
-                            MainScreen()
-                        } else {
-                            AuthNavigation(
-                                navController = navController,
-                                onAuthSuccess = {
-                                    // Navigation to main screen will be handled by isLoggedIn state
-                                }
-                            )
+                    if (isLoggedIn) {
+                        MainScreen()
+                    } else {
+                        AuthNavigation(
+                            navController = navController,
+                            onAuthSuccess = {
+                                // Navigation to main screen will be handled by isLoggedIn state
+                            }
+                        )
                         }
                     }
                 }
