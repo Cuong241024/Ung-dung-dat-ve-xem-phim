@@ -49,39 +49,35 @@ class BookingViewModel @Inject constructor(
 
                 Log.d("BookingViewModel", "Loading booked seats for movie: $movieId, date: $date, time: $time")
 
-                // Kiểm tra tất cả các vé trước
-                val allTickets = firestore.collection("tickets")
-                    .get()
-                    .await()
-
-                Log.d("BookingViewModel", "Total tickets in collection: ${allTickets.documents.size}")
-                allTickets.documents.forEach { doc ->
-                    Log.d("BookingViewModel", "Ticket: movieId=${doc.getLong("movieId")}, date=${doc.getString("date")}, time=${doc.getString("time")}, seats=${doc.get("seats")}")
-                }
-
                 // Chuẩn hóa định dạng ngày tháng
                 val normalizedDate = date.replace("-", "/")
                 
                 // Lấy danh sách vé đã đặt từ Firebase
                 val bookedSeats = firestore.collection("tickets")
-                    .whereEqualTo("movieId", movieId.toLong()) // Chuyển Int thành Long
+                    .whereEqualTo("movieId", movieId.toLong())
+                    .whereEqualTo("date", normalizedDate)
+                    .whereEqualTo("time", time)
                     .get()
                     .await()
                     .documents
-                    .filter { doc -> 
-                        // Lọc theo ngày và giờ trong memory vì có nhiều định dạng khác nhau
-                        val ticketDate = doc.getString("date")?.replace("-", "/")
-                        val ticketTime = doc.getString("time")
-                        ticketDate == normalizedDate && ticketTime == time
-                    }
 
                 Log.d("BookingViewModel", "Found ${bookedSeats.size} tickets for specific query")
 
                 val bookedSeatsList = bookedSeats.flatMap { doc -> 
-                    val seats = doc.get("seats") as? List<String>
-                    Log.d("BookingViewModel", "Document ${doc.id} data: ${doc.data}")
+                    val seatsAny = doc.get("seats")
+                    val seats: List<String> = when (seatsAny) {
+                        is List<*> -> {
+                            seatsAny.flatMap { inner ->
+                                when (inner) {
+                                    is List<*> -> inner.mapNotNull { it?.toString()?.replace("[", "")?.replace("]", "")?.replace("\"", "")?.replace("'", "")?.trim() }
+                                    else -> listOfNotNull(inner?.toString()?.replace("[", "")?.replace("]", "")?.replace("\"", "")?.replace("'", "")?.trim())
+                                }
+                            }
+                        }
+                        else -> emptyList()
+                    }
                     Log.d("BookingViewModel", "Seats from document: $seats")
-                    seats ?: emptyList()
+                    seats
                 }
 
                 Log.d("BookingViewModel", "Total booked seats: ${bookedSeatsList.size}, Seats: $bookedSeatsList")

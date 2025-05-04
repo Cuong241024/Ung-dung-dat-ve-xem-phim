@@ -496,7 +496,14 @@ fun SeatItem(
             .size(40.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(seatColor)
-            .clickable(enabled = !seat.isBooked, onClick = onClick),
+            .clickable(
+                enabled = !seat.isBooked,
+                onClick = {
+                    if (!seat.isBooked) {
+                        onClick()
+                    }
+                }
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
