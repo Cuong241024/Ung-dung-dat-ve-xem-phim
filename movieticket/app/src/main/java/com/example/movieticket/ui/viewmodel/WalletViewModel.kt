@@ -67,18 +67,8 @@ class WalletViewModel @Inject constructor(
                 val currentUser = FirebaseAuth.getInstance().currentUser
                     ?: throw Exception("User not logged in")
 
-                // Kiểm tra quyền admin cho mọi thao tác nạp tiền
-                val userDoc = firestore.collection("users")
-                    .document(currentUser.uid)
-                    .get()
-                    .await()
-
-                if (!(userDoc.getBoolean("isAdmin") ?: false)) {
-                    throw Exception("Chỉ admin mới có quyền nạp tiền")
-                }
-
-                val targetUserId = targetUserId ?: currentUser.uid
-                val walletRef = firestore.collection("wallets").document(targetUserId)
+                // Bỏ kiểm tra quyền admin, chỉ cho phép nạp tiền vào ví của chính mình
+                val walletRef = firestore.collection("wallets").document(currentUser.uid)
 
                 // Get current balance
                 val walletDoc = walletRef.get().await()
@@ -90,18 +80,19 @@ class WalletViewModel @Inject constructor(
                     "amount" to amount,
                     "type" to "Nạp tiền",
                     "timestamp" to System.currentTimeMillis(),
-                    "description" to if (targetUserId == currentUser.uid) 
-                        "Admin nạp tiền vào ví" 
-                    else 
-                        "Admin nạp tiền cho ${walletDoc.getString("cardHolderName")}",
+                    "description" to "Nạp tiền vào ví",
                     "balanceAfter" to newBalance,
                     "adminId" to currentUser.uid
                 )
 
                 // Update wallet with new balance and add transaction
                 firestore.runTransaction { transaction ->
-                    // Update balance
-                    transaction.update(walletRef, "balance", newBalance)
+                    // Update or create balance
+                    if (walletDoc.exists()) {
+                        transaction.update(walletRef, "balance", newBalance)
+                    } else {
+                        transaction.set(walletRef, mapOf("balance" to newBalance))
+                    }
 
                     // Add transaction to history
                     val transactionRef = walletRef
@@ -116,7 +107,7 @@ class WalletViewModel @Inject constructor(
 
                 // Update local state
                 _walletState.value = _walletState.value.copy(
-                    balance = if (targetUserId == currentUser.uid) newBalance else _walletState.value.balance,
+                    balance = newBalance,
                     isLoading = false,
                     showAddMoneyDialog = false,
                     error = null

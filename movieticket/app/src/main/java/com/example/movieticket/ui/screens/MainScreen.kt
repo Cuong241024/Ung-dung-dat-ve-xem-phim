@@ -89,10 +89,13 @@ fun MainScreen() {
                     movieId?.let { id ->
                         val movie = movieViewModel.getMovie(id)
                         if (movie != null) {
+                            val isNowShowing = movieViewModel.movies.value.any { it.id == movie.id }
                             DetailScreen(
                                 movie = movie,
                                 onBuyTicketClick = {
-                                    navController.navigate("booking/${movie.id.toString()}")
+                                    if (isNowShowing) {
+                                        navController.navigate("booking/${movie.id.toString()}")
+                                    }
                                 },
                                 onBackClick = { navController.popBackStack() }
                             )

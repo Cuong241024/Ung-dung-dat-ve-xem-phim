@@ -95,6 +95,17 @@ class PaymentViewModel @Inject constructor(
                 val userId = FirebaseAuth.getInstance().currentUser?.uid 
                     ?: throw Exception("User not logged in")
 
+                // Kiểm tra số dư ví
+                val currentBalance = _paymentState.value.walletBalance
+                val totalAmount = _paymentState.value.total
+                if (currentBalance < totalAmount) {
+                    _paymentState.value = _paymentState.value.copy(
+                        error = "Số dư ví không đủ để thanh toán. Vui lòng nạp thêm tiền!",
+                        isLoading = false
+                    )
+                    return@launch
+                }
+
                 // Kiểm tra ghế
                 val seatsAvailable = MyTicketViewModel.checkSeatsAvailability(
                     movie.id,
@@ -136,8 +147,7 @@ class PaymentViewModel @Inject constructor(
                 }
 
                 // Trừ tiền trong ví
-                val currentBalance = _paymentState.value.walletBalance
-                val newBalance = currentBalance - _paymentState.value.total
+                val newBalance = currentBalance - totalAmount
 
                 // Tạo transaction mới
                 val transaction = Transaction(

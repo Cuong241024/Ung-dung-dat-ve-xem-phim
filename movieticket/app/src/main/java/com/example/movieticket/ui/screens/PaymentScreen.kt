@@ -53,6 +53,7 @@ fun PaymentScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color.Black)
                 .padding(padding)
                 .padding(16.dp)
         ) {

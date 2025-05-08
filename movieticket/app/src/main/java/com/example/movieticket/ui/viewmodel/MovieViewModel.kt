@@ -122,7 +122,8 @@ class MovieViewModel @Inject constructor(
     }
 
     fun getMovie(id: Int): Movie? {
-        return movies.value.find { it.id == id } 
+        return movies.value.find { it.id == id }
+            ?: upcomingMovies.value.find { it.id == id }
             ?: searchResults.value.find { it.id == id }
     }
 
