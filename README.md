@@ -37,19 +37,10 @@
 - Có khả năng mở rộng thêm tính năng trong tương lai.
 
 ---
-Danh sách thành viên
+Tác giả:
 
 -Huỳnh Chí Cường
 
--Lưu Quỳnh Đức
 
--Võ Trần Hoàng
-
-## 🎓 VI. Tổng Kết
-
-Sản phẩm là kết quả của quá trình làm việc nhóm nghiêm túc và đầy nỗ lực từ các thành viên.
-Thông qua việc thực hiện đồ án, các thành viên đã tích lũy thêm kiến thức và kỹ năng chuyên môn, 
-tiếp cận quy trình lập trình thực tế, và rút ra được nhiều bài học quý giá cho hành trình nghề nghiệp sau này.
-
-✨ **Cảm ơn bạn đã quan tâm và ủng hộ!**
+**Cảm ơn bạn đã quan tâm và ủng hộ!**
 
